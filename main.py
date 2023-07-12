@@ -65,11 +65,13 @@ def add_admin_menu(user_id):
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def event_subscribe(user):
+    init_dB()
     cursor.execute("INSERT INTO Subscribers (id) VALUES (%s)", (user.chat.id, ))
     close_dB()
     bot.send_message(user.chat.id, "از این به بعد برای هر کدوم از رویداد های کانون برای شما پیام یادآور می فرستیم.")
 
 def show_Feedbacks(user):
+    init_dB()
     cursor.execute("SELECT * FROM Feedbacks")
     data = "پیشنهادات : \n"
     for item in cursor.fetchall():
@@ -87,6 +89,7 @@ def parse_user_feedback(user):
     polling_state = "None"
     msg = user.text
     time = date.today()
+    init_dB()
     cursor.execute("INSERT INTO Feedbacks (time, content) VALUES (%s, %s)", (time, msg))
     close_dB()
     
@@ -100,6 +103,7 @@ def unsubscribe(user):
 
     if user.chat.id in subs_list:
         cursor.execute("DELETE FROM Subscribers WHERE id = %s", (user.chat.id, ))
+        bot.send_message(user.chat.id, "دیگر برای شما پیام یادآور نمی فرستیم.")
     else:
         bot.send_message(user.chat.id, "شما برای دریافت یادآور از قبل درخواست نداده اید.")
     close_dB()
@@ -145,8 +149,6 @@ def main(user_):
     user = user_
     entered_command = user.text
     user_id = user.chat.id
-
-    init_dB()
 
     if polling_state == "User feedback":
         parse_user_feedback(user)
