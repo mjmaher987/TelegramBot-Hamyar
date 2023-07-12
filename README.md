@@ -2,7 +2,7 @@
 Creating and Developing a telegram bot for SUT Hamyar channel.
 
 ## Contributors
-- Mohammad Javd Maheronnaghsh
+- Mohammad Javad Maheronnaghsh
 - Mohammad Hossein Shafizadegan
 
 ## Bot Features
