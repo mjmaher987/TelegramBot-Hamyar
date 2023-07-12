@@ -32,7 +32,7 @@ def is_admin(user_id):
     return user_id in admins_list
 
 def add_user_menu(user_id):
-    
+
     buttons = types.ReplyKeyboardMarkup(row_width=2)
     button_1 = types.KeyboardButton("درباره ما")
     button_2 = types.KeyboardButton("پیشنهادات و انتقادات")
@@ -42,7 +42,7 @@ def add_user_menu(user_id):
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def add_admin_menu(user_id):
-    
+
     buttons = types.ReplyKeyboardMarkup(row_width=2)
     button_1 = types.KeyboardButton("درباره ما")
     button_2 = types.KeyboardButton("پیشنهادات و انتقادات")
@@ -56,19 +56,19 @@ def add_admin_menu(user_id):
 def event_subscribe(user):
     cursor.execute("INSERT INTO Subscribers (id) VALUES (%s)", (user.chat.id, ))
     bot.send_message(user.chat.id, "از این به بعد برای هر کدوم از رویداد های کانون برای شما پیام یادآور می فرستیم.")
-    
+
 def show_Feedbacks(user):
     cursor.execute("SELECT * FROM Feedbacks")
     data = "پیشنهادات : \n"
     for item in cursor.fetchall():
       data += "تاریخ : " + item[0] + " , " + "پیشنهاد : " + item[1] + "\n===============\n"
     bot.send_message(user.chat.id, data)
-    
+
 def send_Feedback(user):
     bot.send_message(user.chat.id, "هر چه دل تنگت می خواهت بگو :)")
     global polling_state
     polling_state = "User feedback"
-    
+
 def parse_user_feedback(user):
     bot.send_message(user.chat.id, "از اینکه به ما در بهتر کردن کانال و بات کمک می کنی ممنونیم 🙏")
     global polling_state
@@ -76,7 +76,10 @@ def parse_user_feedback(user):
     msg = user.text
     time = date.today()
     cursor.execute("INSERT INTO Feedbacks (time, content) VALUES (%s, %s)", (time, msg))
-    
+    dB.commit()
+    cursor.close()
+    dB.close()
+
 admins = [100, 200, 1047965559000]
 
 
@@ -96,7 +99,7 @@ def start(user_):
         name = 'Unknown!'
 
     init_dB()
-    
+
     bot.send_message(user_id, 'سلام ' + name)
     bot.send_message(user_id, 'امیدوارم حالت خوب باشه.')
 
@@ -105,17 +108,19 @@ def start(user_):
         add_admin_menu(user_id)
     else:
         add_user_menu(user_id)
-    
+
 
 @bot.message_handler(content_types=['text'])
 def main(user_):
     user = user_
     entered_command = user.text
     user_id = user.chat.id
-    
+
+    init_dB()
+
     if polling_state == "User feedback":
         parse_user_feedback(user)
-        
+
     if entered_command == 'نمایش پیشنهادات و انتقادات':
         show_Feedbacks(user)
     elif entered_command == 'درباره ما':
