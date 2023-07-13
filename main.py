@@ -20,15 +20,22 @@ def init_dB():
 
     global cursor
     cursor = dB.cursor()
+    
+def close_dB():
+    dB.commit()
+    cursor.close()
+    dB.close()
 
 def is_admin(user_id):
 
+    init_dB()
     admins = cursor.execute("SELECT * FROM AdminsList")
     admins_list = []
 
     for item in cursor.fetchall():
       admins_list.append(item[0])
-
+    
+    close_dB()
     return user_id in admins_list
 
 def add_user_menu(user_id):
@@ -38,6 +45,7 @@ def add_user_menu(user_id):
     button_2 = types.KeyboardButton("پیشنهادات و انتقادات")
     button_3 = types.KeyboardButton("یادآور رویدادها")
     button_4 = types.KeyboardButton("کانال همیاران سلامت و روان")
+    button_5 = types.KeyboardButton("حذف از لیست دریافت پیام یادآور")
     buttons.add(button_1, button_2, button_3, button_4)
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
@@ -50,18 +58,24 @@ def add_admin_menu(user_id):
     button_4 = types.KeyboardButton("کانال همیاران سلامت و روان")
     button_5 = types.KeyboardButton("نمایش پیشنهادات و انتقادات")
     button_6 = types.KeyboardButton("ایجاد رویداد")
-    buttons.add(button_1, button_2, button_3, button_4, button_5, button_6)
+    button_7 = types.KeyboardButton("حذف لیست پیشنهادات")
+    button_8 = types.KeyboardButton("حذف از لیست دریافت پیام یادآور")
+    buttons.add(button_1, button_2, button_3, button_4,
+                button_5, button_6, button_7, button_8)
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def event_subscribe(user):
+    init_dB()
     cursor.execute("INSERT INTO Subscribers (id) VALUES (%s)", (user.chat.id, ))
+    close_dB()
     bot.send_message(user.chat.id, "از این به بعد برای هر کدوم از رویداد های کانون برای شما پیام یادآور می فرستیم.")
 
 def show_Feedbacks(user):
+    init_dB()
     cursor.execute("SELECT * FROM Feedbacks")
     data = "پیشنهادات : \n"
     for item in cursor.fetchall():
-      data += "تاریخ : " + item[0] + " , " + "پیشنهاد : " + item[1] + "\n===============\n"
+      data += "تاریخ : " + item[0] + " \n " + "پیشنهاد : " + item[1] + "\n================================\n"
     bot.send_message(user.chat.id, data)
 
 def send_Feedback(user):
@@ -75,10 +89,30 @@ def parse_user_feedback(user):
     polling_state = "None"
     msg = user.text
     time = date.today()
+    init_dB()
     cursor.execute("INSERT INTO Feedbacks (time, content) VALUES (%s, %s)", (time, msg))
-    dB.commit()
-    cursor.close()
-    dB.close()
+    close_dB()
+    
+def unsubscribe(user):
+    init_dB()
+    subs = cursor.execute("SELECT * FROM Subscribers")
+    subs_list = []
+
+    for item in cursor.fetchall():
+      subs_list.append(item[0])
+
+    if user.chat.id in subs_list:
+        cursor.execute("DELETE FROM Subscribers WHERE id = %s", (user.chat.id, ))
+        bot.send_message(user.chat.id, "دیگر برای شما پیام یادآور نمی فرستیم.")
+    else:
+        bot.send_message(user.chat.id, "شما برای دریافت یادآور از قبل درخواست نداده اید.")
+    close_dB()
+
+def clear_feedback_dB(user):
+    init_dB()
+    cursor.execute("DELETE FROM Feedbacks")
+    close_dB()
+    bot.send_message(user.chat.id, "لیست پیشنهادات با موفقیت پاک شد.")
 
 admins = [100, 200, 1047965559000]
 
@@ -116,12 +150,10 @@ def main(user_):
     entered_command = user.text
     user_id = user.chat.id
 
-    init_dB()
-
     if polling_state == "User feedback":
         parse_user_feedback(user)
 
-    if entered_command == 'نمایش پیشنهادات و انتقادات':
+    if entered_command == 'نمایش پیشنهادات و انتقادات' and is_admin(user_id):
         show_Feedbacks(user)
     elif entered_command == 'درباره ما':
         bot.send_message(user_id, 'https://yek.link/hamyar_sut')
@@ -131,6 +163,10 @@ def main(user_):
         event_subscribe(user)
     elif entered_command == 'کانال همیاران سلامت و روان':
         bot.send_message(user_id, 'https://t.me/SUT_hamyar')
+    elif entered_command == 'حذف لیست پیشنهادات' and is_admin(user_id):
+        clear_feedback_dB(user)
+    elif entered_command == 'حذف از لیست دریافت پیام یادآور':
+        unsubscribe(user)
 
 bot.polling()
 
