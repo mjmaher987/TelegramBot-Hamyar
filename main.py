@@ -3,7 +3,7 @@ import mysql.connector
 import os
 from datetime import date
 
-token = '6124965342:AAHQfQikY_iGw3lsgrlijpE9XZw7IQCLUMw'
+token = ''
 bot = telebot.TeleBot(token)
 
 polling_state = "None"
