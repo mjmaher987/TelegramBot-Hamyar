@@ -79,7 +79,7 @@ def show_Feedbacks(user):
     bot.send_message(user.chat.id, data)
 
 def send_Feedback(user):
-    bot.send_message(user.chat.id, "هر چه دل تنگت می خواهت بگو :)")
+    bot.send_message(user.chat.id, "هر چه دل تنگت می خواهد بگو :)")
     global polling_state
     polling_state = "User feedback"
 
@@ -138,7 +138,6 @@ def start(user_):
     bot.send_message(user_id, 'امیدوارم حالت خوب باشه.')
 
     if is_admin(user_id):
-    # if user_id in admins:
         add_admin_menu(user_id)
     else:
         add_user_menu(user_id)
