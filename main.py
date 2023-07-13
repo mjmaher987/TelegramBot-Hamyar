@@ -14,7 +14,7 @@ def init_dB():
     dB = mysql.connector.connect(
       host="MOHSH.mysql.pythonanywhere-services.com",
       user="MOHSH",
-      password="SutHamyarDB",
+      password="",
       database="MOHSH$SUT-Hamyar-Bot"
     )
 
