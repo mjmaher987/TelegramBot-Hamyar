@@ -19,14 +19,15 @@ Creating and Developing a telegram bot for SUT Hamyar channel.
 - [ ] Developing Admin pannel
     - [ ] Feedbacks: Connecting to the MySQL database and fetch data from coressponding table to show the admins
     - [ ] Event remider:
-        - [ ] Create a table for events to be remindered
+        - [x] Create a table for events to be remindered
         - [ ] Creating an interface to store the events properties
 - [ ] Developing User pannel
-    - [ ] About us
+    - [x] About us
     - [ ] Redirect to main channel
     - [ ] Send Feedbacks :
-        - [ ] Creating table
-        - [ ] Instering data to the table
+        - [x] Creating table
+        - [x] Instering data to the table
     - [ ] Subscribe for event remider
-        - [ ] Create a table for subscribers and adding users
+        - [x] Create a table for subscribers and adding users
+        - [ ] support removing from reminder list too
         - [ ] Developing a function to send remieder to subscribers
