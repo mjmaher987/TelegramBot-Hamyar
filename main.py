@@ -7,6 +7,10 @@ token = ''
 bot = telebot.TeleBot(token)
 
 polling_state = "None"
+admin_ = None
+event_name = None
+time_submitted = None
+
 
 def init_dB():
 
@@ -20,7 +24,8 @@ def init_dB():
 
     global cursor
     cursor = dB.cursor()
-    
+
+
 def close_dB():
     dB.commit()
     cursor.close()
@@ -34,7 +39,7 @@ def is_admin(user_id):
 
     for item in cursor.fetchall():
       admins_list.append(item[0])
-    
+
     close_dB()
     return user_id in admins_list
 
@@ -46,7 +51,7 @@ def add_user_menu(user_id):
     button_3 = types.KeyboardButton("یادآور رویدادها")
     button_4 = types.KeyboardButton("کانال همیاران سلامت و روان")
     button_5 = types.KeyboardButton("حذف از لیست دریافت پیام یادآور")
-    buttons.add(button_1, button_2, button_3, button_4)
+    buttons.add(button_1, button_2, button_3, button_4, button_5)
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def add_admin_menu(user_id):
@@ -79,9 +84,36 @@ def show_Feedbacks(user):
     bot.send_message(user.chat.id, data)
 
 def send_Feedback(user):
-    bot.send_message(user.chat.id, "هر چه دل تنگت می خواهد بگو :)")
+    bot.send_message(user.chat.id, "هر چه دل تنگت می خواهت بگو :)")
     global polling_state
     polling_state = "User feedback"
+
+def send_event(user):
+    bot.send_message(user.chat.id, "نام رویداد رو لطفا بفرست")
+    global polling_state
+    polling_state = "Admin Submit Name of Event"
+
+def receive_event_name(user):
+    bot.send_message(user.chat.id, "نام رویداد دریافت شد، حالا لطفا زمان و تاریخ رویداد رو وارد کن")
+    global polling_state
+    polling_state = "Admin Submit Time of Event"
+    event_ = user.text
+    time_ = date.today()
+    global time_submitted
+    global event_name
+    time_submitted = time_
+    event_name = event_
+
+def receive_event_time(user):
+    bot.send_message(user.chat.id, "زمان رویداد هم دریافت شد، ممنونم")
+    global polling_state
+    global time_submitted
+    global event_name
+    polling_state = "None"
+    event_time = user.text
+    init_dB()
+    cursor.execute("INSERT INTO Events (time_submitted, event_name, event_time) VALUES (%s, %s, %s)", (time_submitted, event_name, event_time))
+    close_dB()
 
 def parse_user_feedback(user):
     bot.send_message(user.chat.id, "از اینکه به ما در بهتر کردن کانال و بات کمک می کنی ممنونیم 🙏")
@@ -92,7 +124,7 @@ def parse_user_feedback(user):
     init_dB()
     cursor.execute("INSERT INTO Feedbacks (time, content) VALUES (%s, %s)", (time, msg))
     close_dB()
-    
+
 def unsubscribe(user):
     init_dB()
     subs = cursor.execute("SELECT * FROM Subscribers")
@@ -133,6 +165,8 @@ def start(user_):
         name = 'Unknown!'
 
     init_dB()
+    print('hi')
+    print(user_id)
 
     bot.send_message(user_id, 'سلام ' + name)
     bot.send_message(user_id, 'امیدوارم حالت خوب باشه.')
@@ -149,10 +183,15 @@ def main(user_):
     entered_command = user.text
     user_id = user.chat.id
 
+
+
     if polling_state == "User feedback":
         parse_user_feedback(user)
-
-    if entered_command == 'نمایش پیشنهادات و انتقادات' and is_admin(user_id):
+    elif polling_state == "Admin Submit Name of Event":
+        receive_event_name(user)
+    elif polling_state == "Admin Submit Time of Event": #  and user.chat.id == admin_.chat.id
+        receive_event_time(user)
+    elif entered_command == 'نمایش پیشنهادات و انتقادات' and is_admin(user_id):
         show_Feedbacks(user)
     elif entered_command == 'درباره ما':
         bot.send_message(user_id, 'https://yek.link/hamyar_sut')
@@ -164,6 +203,8 @@ def main(user_):
         bot.send_message(user_id, 'https://t.me/SUT_hamyar')
     elif entered_command == 'حذف لیست پیشنهادات' and is_admin(user_id):
         clear_feedback_dB(user)
+    elif entered_command == 'ایجاد رویداد' and is_admin(user_id):
+        send_event(user)
     elif entered_command == 'حذف از لیست دریافت پیام یادآور':
         unsubscribe(user)
 
