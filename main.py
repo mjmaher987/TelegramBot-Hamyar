@@ -2,6 +2,7 @@ from telebot import *
 import mysql.connector
 import os
 from datetime import date
+import schedule
 
 token = ''
 bot = telebot.TeleBot(token)
@@ -177,6 +178,11 @@ def start(user_):
         add_user_menu(user_id)
 
 
+def send_notification(chat_id):
+    message = 'This is your one-time notification!'
+    bot.send_message(chat_id , message)
+    # bot.send_message(1310733981 , message)
+
 @bot.message_handler(content_types=['text'])
 def main(user_):
     user = user_
@@ -185,10 +191,26 @@ def main(user_):
 
 
 
+
+
     if polling_state == "User feedback":
         parse_user_feedback(user)
     elif polling_state == "Admin Submit Name of Event":
         receive_event_name(user)
+        chat_id = 1047965559
+        target_datetime = datetime(2023, 8, 10, 14, 41, 40)
+        now = datetime.now()
+        time_difference = int((target_datetime - now).total_seconds())
+        # schedule.every().day.at('14:30').do(send_notification, chat_id)
+        schedule.every(time_difference).seconds.do(send_notification, chat_id)
+
+        chat_id = 1310733981
+        schedule.every(time_difference).seconds.do(send_notification, chat_id)
+        current_time = datetime.now().time()
+        print("Current time:", current_time)
+        while True:
+            # WHAT???
+            schedule.run_pending()
     elif polling_state == "Admin Submit Time of Event": #  and user.chat.id == admin_.chat.id
         receive_event_time(user)
     elif entered_command == 'نمایش پیشنهادات و انتقادات' and is_admin(user_id):
