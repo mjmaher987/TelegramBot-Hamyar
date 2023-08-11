@@ -35,5 +35,9 @@ Creating and Developing a telegram bot for SUT Hamyar channel.
             - [ ] unschedule and schedule
             - [ ] when somebody subscribes, schedule all the pre-entered events
             - [ ] when some events added, schedule that event for all pre-subscribed users
+            - [ ] unschedule when remove/cancel event
 - [ ] Find a proper server
+- [ ] Create Application
+- [ ] Guidelines - for users : HELP
+- [ ] Privacy (When using admin panel)
 
