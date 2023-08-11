@@ -3,8 +3,10 @@ import mysql.connector
 import os
 from datetime import date
 import schedule
+from apscheduler.schedulers.blocking import BlockingScheduler
 
-token = ''
+
+token = '6124965342:AAHQfQikY_iGw3lsgrlijpE9XZw7IQCLUMw'
 bot = telebot.TeleBot(token)
 
 polling_state = "None"
@@ -19,7 +21,7 @@ def init_dB():
     dB = mysql.connector.connect(
       host="MOHSH.mysql.pythonanywhere-services.com",
       user="MOHSH",
-      password="",
+      password="SutHamyarDB",
       database="MOHSH$SUT-Hamyar-Bot"
     )
 
@@ -106,15 +108,25 @@ def receive_event_name(user):
     event_name = event_
 
 def receive_event_time(user):
-    bot.send_message(user.chat.id, "زمان رویداد هم دریافت شد، ممنونم")
     global polling_state
     global time_submitted
     global event_name
-    polling_state = "None"
     event_time = user.text
+    bot.send_message(user.chat.id, "زمان رویداد هم دریافت شد، ممنونم")
+    bot.send_message(user.chat.id, "Current time is " + str(datetime.now().time()) + " the time you entered is " + str(event_time))
+
+
+    polling_state = "None"
+
     init_dB()
     cursor.execute("INSERT INTO Events (time_submitted, event_name, event_time) VALUES (%s, %s, %s)", (time_submitted, event_name, event_time))
     close_dB()
+
+    sc = BlockingScheduler()
+
+    sc.add_job(send_notification, trigger="date", run_date=event_time)
+    sc.start()
+
 
 def parse_user_feedback(user):
     bot.send_message(user.chat.id, "از اینکه به ما در بهتر کردن کانال و بات کمک می کنی ممنونیم 🙏")
@@ -178,8 +190,9 @@ def start(user_):
         add_user_menu(user_id)
 
 
-def send_notification(chat_id):
+def send_notification():
     message = 'This is your one-time notification!'
+    chat_id = 1047965559
     bot.send_message(chat_id , message)
     # bot.send_message(1310733981 , message)
 
@@ -197,20 +210,6 @@ def main(user_):
         parse_user_feedback(user)
     elif polling_state == "Admin Submit Name of Event":
         receive_event_name(user)
-        chat_id = 1047965559
-        target_datetime = datetime(2023, 8, 10, 14, 41, 40)
-        now = datetime.now()
-        time_difference = int((target_datetime - now).total_seconds())
-        # schedule.every().day.at('14:30').do(send_notification, chat_id)
-        schedule.every(time_difference).seconds.do(send_notification, chat_id)
-
-        chat_id = 1310733981
-        schedule.every(time_difference).seconds.do(send_notification, chat_id)
-        current_time = datetime.now().time()
-        print("Current time:", current_time)
-        while True:
-            # WHAT???
-            schedule.run_pending()
     elif polling_state == "Admin Submit Time of Event": #  and user.chat.id == admin_.chat.id
         receive_event_time(user)
     elif entered_command == 'نمایش پیشنهادات و انتقادات' and is_admin(user_id):
