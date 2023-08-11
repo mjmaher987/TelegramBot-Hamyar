@@ -1,6 +1,11 @@
 # TelegramBot-Hamyar
 Creating and Developing a telegram bot for SUT Hamyar channel.
 
+## Bot Access
+You can access the bot and use it from Telegram at: @sut_hamyar_bot
+
+Help use improve the bot with your welcomming feedbacks. You can leave an issue or create a pull request to join our community.
+
 ## Contributors
 - Mohammad Javad Maheronnaghsh
 - Mohammad Hossein Shafizadegan
@@ -40,4 +45,5 @@ Creating and Developing a telegram bot for SUT Hamyar channel.
 - [ ] Create Application
 - [ ] Guidelines - for users : HELP
 - [ ] Privacy (When using admin panel)
+- [ ] Add Choose Language
 
