@@ -31,3 +31,9 @@ Creating and Developing a telegram bot for SUT Hamyar channel.
         - [x] Create a table for subscribers and adding users
         - [x] support removing from reminder list too
         - [ ] Developing a function to send remieder to subscribers
+            - [ ] fetching data from DB
+            - [ ] unschedule and schedule
+            - [ ] when somebody subscribes, schedule all the pre-entered events
+            - [ ] when some events added, schedule that event for all pre-subscribed users
+- [ ] Find a proper server
+
