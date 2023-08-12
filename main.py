@@ -11,6 +11,7 @@ bot = telebot.TeleBot(token)
 sc = BlockingScheduler()
 
 
+
 polling_state = "None"
 admin_ = None
 event_name = None
@@ -76,10 +77,20 @@ def add_admin_menu(user_id):
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def event_subscribe(user):
+
     init_dB()
-    cursor.execute("INSERT INTO Subscribers (id) VALUES (%s)", (user.chat.id, ))
+    subs = cursor.execute("SELECT * FROM Subscribers")
+    subs_list = []
+
+    for item in cursor.fetchall():
+      subs_list.append(item[0])
+
+    if user.chat.id in subs_list:
+        bot.send_message(user.chat.id, "شما از قبل در لیست یادآور هستید")
+    else:
+        cursor.execute("INSERT INTO Subscribers (id) VALUES (%s)", (user.chat.id, ))
+        bot.send_message(user.chat.id, "از این به بعد برای هر کدوم از رویداد های کانون برای شما پیام یادآور می فرستیم.")
     close_dB()
-    bot.send_message(user.chat.id, "از این به بعد برای هر کدوم از رویداد های کانون برای شما پیام یادآور می فرستیم.")
     schedule_message()
 
 def show_Feedbacks(user):
@@ -217,10 +228,12 @@ admins = [100, 200, 1047965559000]
 
 @bot.message_handler(commands=['start'])
 def start(user_):
+
     user = user_
     user_id = user.chat.id
     firstname = user.chat.first_name
     lastname = user.chat.last_name
+    username = user.chat.username
     if firstname is not None and lastname is not None:
         name = firstname + ' ' + lastname
     elif firstname is not None:
@@ -230,9 +243,7 @@ def start(user_):
     else:
         name = 'Unknown!'
 
-    init_dB()
-    print('hi')
-    print(user_id)
+
 
     bot.send_message(user_id, 'سلام ' + name)
     bot.send_message(user_id, 'امیدوارم حالت خوب باشه.')
