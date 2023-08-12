@@ -6,8 +6,10 @@ import schedule
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 
-token = '6124965342:AAHQfQikY_iGw3lsgrlijpE9XZw7IQCLUMw'
+token = ''
 bot = telebot.TeleBot(token)
+sc = BlockingScheduler()
+
 
 polling_state = "None"
 admin_ = None
@@ -21,7 +23,7 @@ def init_dB():
     dB = mysql.connector.connect(
       host="MOHSH.mysql.pythonanywhere-services.com",
       user="MOHSH",
-      password="SutHamyarDB",
+      password="",
       database="MOHSH$SUT-Hamyar-Bot"
     )
 
@@ -68,8 +70,9 @@ def add_admin_menu(user_id):
     button_6 = types.KeyboardButton("ایجاد رویداد")
     button_7 = types.KeyboardButton("حذف لیست پیشنهادات")
     button_8 = types.KeyboardButton("حذف از لیست دریافت پیام یادآور")
+    button_9 = types.KeyboardButton("حذف رویداد")
     buttons.add(button_1, button_2, button_3, button_4,
-                button_5, button_6, button_7, button_8)
+                button_5, button_6, button_7, button_8, button_9)
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def event_subscribe(user):
@@ -77,6 +80,7 @@ def event_subscribe(user):
     cursor.execute("INSERT INTO Subscribers (id) VALUES (%s)", (user.chat.id, ))
     close_dB()
     bot.send_message(user.chat.id, "از این به بعد برای هر کدوم از رویداد های کانون برای شما پیام یادآور می فرستیم.")
+    schedule_message()
 
 def show_Feedbacks(user):
     init_dB()
@@ -85,6 +89,7 @@ def show_Feedbacks(user):
     for item in cursor.fetchall():
       data += "تاریخ : " + item[0] + " \n " + "پیشنهاد : " + item[1] + "\n================================\n"
     bot.send_message(user.chat.id, data)
+    close_dB()
 
 def send_Feedback(user):
     bot.send_message(user.chat.id, "هر چه دل تنگت می خواهت بگو :)")
@@ -122,11 +127,58 @@ def receive_event_time(user):
     cursor.execute("INSERT INTO Events (time_submitted, event_name, event_time) VALUES (%s, %s, %s)", (time_submitted, event_name, event_time))
     close_dB()
 
-    sc = BlockingScheduler()
+    schedule_message()
 
-    sc.add_job(send_notification, trigger="date", run_date=event_time)
+def schedule_message():
+    global sc
+    if sc.running:
+        sc.shutdown()
+        sc = BlockingScheduler()
+
+    init_dB()
+
+    cursor.execute("SELECT * FROM Events")
+
+    for item in cursor.fetchall():
+        msg = item[1]
+        sc.add_job(send_notification, trigger="date", run_date=item[2], args=(msg,))
+
+    close_dB()
+
     sc.start()
 
+def send_notification(msg):
+    init_dB()
+    cursor.execute("SELECT * FROM Subscribers")
+    for item in cursor.fetchall():
+        id = item[0]
+        bot.send_message(id , msg)
+
+    close_dB()
+
+def remove_event(user):
+    init_dB()
+    cursor.execute("SELECT * FROM Events")
+    data = "رویدادها : \n"
+    idx = 1
+    for item in cursor.fetchall():
+      data += str(idx) + "- تاریخ : " + str(item[0]) + " \n " + "نام : " + str(item[1]) + " \n " + "زمان برگزاری : " + str(item[2]) + "\n================================\n"
+      idx += 1
+    bot.send_message(user.chat.id, data)
+    bot.send_message(user.chat.id, "شماره رویدادی رو که می خوای خذف کنی وارد کن")
+    close_dB()
+    global polling_state
+    polling_state = "Remove event"
+
+def removeEvent_dB(user):
+    global polling_state
+    polling_state = "None"
+    # num = int(user.text)
+    init_dB()
+    cursor.execute("DELETE FROM Events")
+        # cursor.execute(f"DELETE FROM Events LIMIT 1 OFFSET {str(num-1)}")
+    close_dB()
+    bot.send_message(user.chat.id, "رویداد حذف شد.")
 
 def parse_user_feedback(user):
     bot.send_message(user.chat.id, "از اینکه به ما در بهتر کردن کانال و بات کمک می کنی ممنونیم 🙏")
@@ -152,6 +204,7 @@ def unsubscribe(user):
     else:
         bot.send_message(user.chat.id, "شما برای دریافت یادآور از قبل درخواست نداده اید.")
     close_dB()
+    schedule_message()
 
 def clear_feedback_dB(user):
     init_dB()
@@ -190,12 +243,6 @@ def start(user_):
         add_user_menu(user_id)
 
 
-def send_notification():
-    message = 'This is your one-time notification!'
-    chat_id = 1047965559
-    bot.send_message(chat_id , message)
-    # bot.send_message(1310733981 , message)
-
 @bot.message_handler(content_types=['text'])
 def main(user_):
     user = user_
@@ -212,6 +259,8 @@ def main(user_):
         receive_event_name(user)
     elif polling_state == "Admin Submit Time of Event": #  and user.chat.id == admin_.chat.id
         receive_event_time(user)
+    elif polling_state == "Remove event":
+        removeEvent_dB(user)
     elif entered_command == 'نمایش پیشنهادات و انتقادات' and is_admin(user_id):
         show_Feedbacks(user)
     elif entered_command == 'درباره ما':
@@ -228,6 +277,8 @@ def main(user_):
         send_event(user)
     elif entered_command == 'حذف از لیست دریافت پیام یادآور':
         unsubscribe(user)
+    elif entered_command == 'حذف رویداد':
+        remove_event(user)
 
 bot.polling()
 
