@@ -46,4 +46,5 @@ Help use improve the bot with your welcomming feedbacks. You can leave an issue 
 - [ ] Guidelines - for users : HELP
 - [ ] Privacy (When using admin panel)
 - [ ] Add Choose Language
+- [ ] Clean Code
 
