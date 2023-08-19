@@ -4,13 +4,12 @@ import os
 from datetime import date
 import schedule
 from apscheduler.schedulers.blocking import BlockingScheduler
+from tabulate import tabulate
 
 
 token = ''
 bot = telebot.TeleBot(token)
 sc = BlockingScheduler()
-
-
 
 polling_state = "None"
 admin_ = None
@@ -72,8 +71,11 @@ def add_admin_menu(user_id):
     button_7 = types.KeyboardButton("حذف لیست پیشنهادات")
     button_8 = types.KeyboardButton("حذف از لیست دریافت پیام یادآور")
     button_9 = types.KeyboardButton("حذف رویداد")
-    buttons.add(button_1, button_2, button_3, button_4,
-                button_5, button_6, button_7, button_8, button_9)
+    button_10 = types.KeyboardButton("نمایش تمام کاربران")
+    button_11 = types.KeyboardButton("نمایش مشترکین")
+    buttons.add(button_1, button_2, button_3, button_4, button_5,
+                button_6, button_7, button_8, button_9, button_10,
+                button_11)
     bot.send_message(user_id, 'چطور میتونم کمکت کنم؟', reply_markup=buttons)
 
 def event_subscribe(user):
@@ -103,7 +105,7 @@ def show_Feedbacks(user):
     close_dB()
 
 def send_Feedback(user):
-    bot.send_message(user.chat.id, "هر چه دل تنگت می خواهت بگو :)")
+    bot.send_message(user.chat.id, "هر چه می خواهد دل تنگت بگو :)")
     global polling_state
     polling_state = "User feedback"
 
@@ -223,7 +225,22 @@ def clear_feedback_dB(user):
     close_dB()
     bot.send_message(user.chat.id, "لیست پیشنهادات با موفقیت پاک شد.")
 
-admins = [100, 200, 1047965559000]
+def show_subscribers_data(user):
+    init_dB()
+    cursor.execute("SELECT * FROM Subscribers")
+    subs = "Subscribers : \n"
+    for item in cursor.fetchall():
+      subs += str(item[0]) + "\n"
+    bot.send_message(user.chat.id, subs)
+    close_dB()
+
+def show_all_users(user):
+    init_dB()
+    cursor.execute("SELECT * FROM UserInformation")
+    headers = ["#", "name", "username", "ID"] # Define the headers
+    my_data = list(map(list, cursor.fetchall()))
+    bot.send_message(user.chat.id, tabulate(my_data, headers=headers, tablefmt="grid"))
+    close_dB()
 
 
 @bot.message_handler(commands=['start'])
@@ -243,7 +260,10 @@ def start(user_):
     else:
         name = 'Unknown!'
 
-
+    # save info
+    init_dB()
+    cursor.execute("INSERT INTO UserInformation (name, username, chatid) VALUES (%s, %s, %s)", (name, username, user_id))
+    close_dB()
 
     bot.send_message(user_id, 'سلام ' + name)
     bot.send_message(user_id, 'امیدوارم حالت خوب باشه.')
@@ -259,10 +279,6 @@ def main(user_):
     user = user_
     entered_command = user.text
     user_id = user.chat.id
-
-
-
-
 
     if polling_state == "User feedback":
         parse_user_feedback(user)
@@ -290,8 +306,9 @@ def main(user_):
         unsubscribe(user)
     elif entered_command == 'حذف رویداد':
         remove_event(user)
+    elif entered_command == 'نمایش تمام کاربران':
+        show_all_users(user)
+    elif entered_command == 'نمایش مشترکین':
+        show_subscribers_data(user)
 
 bot.polling()
-
-
-
