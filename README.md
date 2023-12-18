@@ -19,7 +19,28 @@ Help use improve the bot with your welcomming feedbacks. You can leave an issue 
 ### Useful Links
 We got help from these links ([link1](https://www.youtube.com/watch?v=fReAwuHUiiE) and [link2](https://www.youtube.com/watch?v=LL9XbWEXELc]))
 Here are the commands to develop the code on DigitalOcean.
-
+- Check for existing sessions
+  ```
+  tmux list-sessions
+  ```
+- Terminate if it is undesired
+  ```
+  tmux kill-session -t bot-session
+  ```
+- Start from beginning
+  ```
+  tmux new-session -s bot-session
+  source venv/bin/activate
+  python3 bot.py
+  ```  
+- Go out of the virtual environment
+  ```
+  deactivate
+  ```
+- Go out of the Session environment
+  ```
+  Ctrl-b, then press d
+  ```
 ## Bot Features
 - Admin Pannel :
     - Observing and tracking feedbacks and suggestions given from users anonymously
