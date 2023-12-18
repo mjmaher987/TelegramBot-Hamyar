@@ -25,6 +25,9 @@ Help use improve the bot with your welcomming feedbacks. You can leave an issue 
     - Subscribe for events to recieve reminders
     - Subscribe for special topics (articles, video clips, notes, ...) so that the bot will send them that special posts. (Beta version)
 
+## Server
+Firstly it was located on Pythonanywhere, but due to some issues and limitations, we moved onto DigitalOcean.
+
 ## To Do
 - [x] Developing Admin pannel
     - [x] Feedbacks: Connecting to the MySQL database and fetch data from coressponding table to show the admins
