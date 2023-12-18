@@ -1,5 +1,5 @@
 # TelegramBot-Hamyar
-<img src="https://github.com/mjmaher987/TelegramBot-Hamyar/assets/77095635/4565899d-3d07-48a5-ad48-a1b0df2ea83e)" width="300" />
+<img src="https://github.com/mjmaher987/TelegramBot-Hamyar/assets/77095635/4565899d-3d07-48a5-ad48-a1b0df2ea83e)" width="200" />
 
 <img src="https://github.com/mjmaher987/TelegramBot-Hamyar/assets/77095635/a334bd19-2add-4a7c-b603-a23618daa377)" width="200" />
 
