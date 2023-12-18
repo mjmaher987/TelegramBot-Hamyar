@@ -15,6 +15,11 @@ Help use improve the bot with your welcomming feedbacks. You can leave an issue 
 - Mohammad Javad Maheronnaghsh
 - Mohammad Hossein Shafizadegan
 
+## Guide
+### Useful Links
+We got help from these links ([link1](https://www.youtube.com/watch?v=fReAwuHUiiE) and [link2](https://www.youtube.com/watch?v=LL9XbWEXELc]))
+Here are the commands to develop the code on DigitalOcean.
+
 ## Bot Features
 - Admin Pannel :
     - Observing and tracking feedbacks and suggestions given from users anonymously
