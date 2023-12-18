@@ -27,6 +27,10 @@ Here are the commands to develop the code on DigitalOcean.
   ```
   tmux kill-session -t bot-session
   ```
+- Enter the session
+  ```
+  tmux attach-session -t bot-session
+  ```
 - Start from beginning
   ```
   tmux new-session -s bot-session
