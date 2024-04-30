@@ -1,0 +1,3 @@
+.idea
+django/myenv
+django/db.sqlite3
