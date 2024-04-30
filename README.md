@@ -50,6 +50,32 @@ Here are the commands to develop the code on DigitalOcean.
 ```
 got clone https://github.com/mjmaher987/TelegramBot-Hamyar.git
 ```
+
+## Migrate to django
+- Install django
+```
+pip install django
+```
+- Migrate
+```
+python manage.py migrate
+```
+- Run server
+```
+python3 manage.py runserver 0.0.0.0:8081
+```
+- modify allowed hosts in the seetings.py
+- direct to website
+```
+http://142.93.100.41:8081/
+```
+- create superuser
+```
+python manage.py createsuperuser
+```
+- direct to admin page
+http://142.93.100.41:8081/admin
+
 ## Bot Features
 - Admin Pannel :
     - Observing and tracking feedbacks and suggestions given from users anonymously
