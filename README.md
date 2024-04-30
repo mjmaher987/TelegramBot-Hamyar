@@ -45,6 +45,11 @@ Here are the commands to develop the code on DigitalOcean.
   ```
   Ctrl-b, then press d
   ```
+### Connect to Github
+- Simply enter this command:
+```
+got clone https://github.com/mjmaher987/TelegramBot-Hamyar.git
+```
 ## Bot Features
 - Admin Pannel :
     - Observing and tracking feedbacks and suggestions given from users anonymously
